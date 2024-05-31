@@ -7,7 +7,8 @@ app = FastAPI()
 
 # Directorio base para los archivos PDF
 BASE_DIR = Path("static")
-
+# Crear el directorio si no existe
+BASE_DIR.mkdir(parents=True, exist_ok=True)
 
 @app.get("/")
 def read_root():

@@ -14,6 +14,7 @@ main_bloqueode_numero.py
 .Python
 API-WSP-PERSONAL.py
 build/
+*.pdf
 develop-eggs/
 dist/
 downloads/

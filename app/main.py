@@ -1,6 +1,7 @@
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Query, UploadFile, File
 from fastapi.responses import FileResponse
 from pathlib import Path
+import shutil
 
 app = FastAPI()
 
@@ -22,6 +23,43 @@ async def get_pdf(filename:str):
 
     # Devolver el archivo PDF
     return FileResponse(pdf_path, media_type='application/pdf')
+
+@app.post("/upload")
+async def upload_pdf(file: UploadFile = File(...)):
+    # Verificar que el archivo tiene la extensión .pdf
+    if not file.filename.endswith(".pdf"):
+        raise HTTPException(status_code=400, detail="Only PDF files are allowed/Solo archivos PDF son permitidos")
+
+    # Construir la ruta completa al archivo donde se guardará
+    file_path = BASE_DIR / file.filename
+
+    # Guardar el archivo en el directorio especificado
+    with open(file_path, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+
+    return {"filename": file.filename, "message": "File uploaded successfully/Archivo Subido exitosamente"}
+
+@app.get("/list-pdfs")
+async def list_pdfs():
+    # Listar todos los archivos PDF en el directorio especificado
+    pdf_files = [str(file.name) for file in BASE_DIR.glob("*.pdf")]
+
+    return {"pdf_files": pdf_files}
+
+@app.delete("/delete-pdf")
+async def delete_pdf(filename: str):
+    # Construir la ruta completa al archivo de manera segura
+    pdf_path = BASE_DIR / filename
+
+    # Verificar que el archivo existe y es un archivo regular
+    if not pdf_path.exists() or not pdf_path.is_file():
+        raise HTTPException(status_code=404, detail="PDF file not found")
+
+    # Eliminar el archivo
+    pdf_path.unlink()
+
+    return {"message": f"File '{filename}' deleted successfully/Archivo '{filename}' eliminado exitosamente"}
+
 
 if __name__ == "__main__":
     import uvicorn

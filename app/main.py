@@ -7,6 +7,10 @@ app = FastAPI()
 
 # Directorio base para los archivos PDF
 BASE_DIR = Path("static")
+
+"""
+REVISAR, DEBEMOS CREAR UNA CARPETA SI ESQ NO EXISTES
+"""
 # Crear el directorio si no existe
 BASE_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -34,6 +38,10 @@ async def upload_pdf(file: UploadFile = File(...)):
     if not file.filename.endswith(".pdf"):
         raise HTTPException(
             status_code=400, detail="Only PDF files are allowed/Solo archivos PDF son permitidos")
+
+    # Verificar si el directorio BASE_DIR existe, si no, crearlo
+    if not BASE_DIR.exists():
+        BASE_DIR.mkdir(parents=True, exist_ok=True)
 
     # Construir la ruta completa al archivo donde se guardará
     file_path = BASE_DIR / file.filename

@@ -78,6 +78,20 @@ async def delete_pdf(filename: str):
 
     return {"message": f"File '{filename}' deleted successfully/Archivo '{filename}' eliminado exitosamente"}
 
+@app.get("/download-pdf")
+async def download_pdf(filename: str, custom_name: str):
+    # Construir la ruta completa al archivo de manera segura
+    pdf_path = BASE_DIR / filename
+
+    # Verificar que el archivo existe y es un archivo regular
+    if not pdf_path.exists() or not pdf_path.is_file():
+        raise HTTPException(status_code=404, detail="PDF file not found")
+
+    # Devolver el archivo PDF con el nombre personalizado
+    response = FileResponse(pdf_path, media_type='application/pdf')
+    response.headers["Content-Disposition"] = f"attachment; filename={custom_name}.pdf"
+    return response
+
 
 if __name__ == "__main__":
     import uvicorn
